@@ -1,5 +1,6 @@
-import os
+#@version 0.1.1 
 
+import os
 
 class Table():
 
@@ -7,6 +8,8 @@ class Table():
         self.column_values = []
         self.row_values = []
         self.import_file = ""
+        self.column_count = 0
+        self.row_count = 0
 
     def get_data_from_txt(self, filename, separator, quiet=False):
 
@@ -35,7 +38,7 @@ class Table():
 
         for i, v in enumerate(self.row_values):
             if(len(v) != self.column_count):
-                print("Warning: The number of fields in row nr {0} is diffrent from the number of columns".format(i+1))
+                print("Warning: Number of fields in row nr {0} is diffrent from number of columns".format(i+1))
         
 
         if quiet == False:
@@ -44,14 +47,14 @@ class Table():
                   
     def summary(self):
         print()
-        print("<---------------------------------------------------------------->\nTable summary:\n")
+        print("<-----------------------Table summary----------------------->\n\n")
         print("Table imported from: {0}\n".format(os.path.abspath(self.import_file)))
         print("Number of columns: {0}\tNumber of records: {1}\n".format(self.column_count, self.row_count))
                 
     def create_and_insert_sql(self, filename, types, tablename):
 
         if(len(types) != self.column_count):
-            print("Number of columns differs from number of types")
+            print("Error: number of columns differs from number of types")
             return -1
 
         sql = "CREATE TABLE {0} (".format(tablename)
@@ -107,7 +110,7 @@ class Table():
         f.write(sql)
 
 
-    def __split_data__(self, str, separator):
+    def __split_data__(self, str, separator): #transforms string "field1;field2,....fieldn" into list [field1, field2,....fieldn]
         arr = []
         b = 0
         e = str.find(separator, b)
