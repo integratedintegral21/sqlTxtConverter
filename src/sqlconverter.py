@@ -25,7 +25,7 @@ class Table():
         columns = content[0]
         rows = content[1:]
 
-        self.column_values = self.__split_data__(columns, ';')
+        self.column_values = self.__split_data__(columns, separator)
 
         for s in rows:
             self.row_values.append(self.__split_data__(s,separator))
@@ -38,7 +38,7 @@ class Table():
 
         for i, v in enumerate(self.row_values):
             if(len(v) != self.column_count):
-                print("Warning: Number of fields in row nr {0} is diffrent from number of columns".format(i+1))
+                print("Warning: Number of fields in row nr {0} ({1}) is diffrent from number of columns ({2})".format(i+1, len(v), self.column_count))
         
 
         if quiet == False:
@@ -54,7 +54,7 @@ class Table():
     def create_and_insert_sql(self, filename, types, tablename):
 
         if(len(types) != self.column_count):
-            print("Error: number of columns differs from number of types")
+            raise Exception("Error: number of columns ({0}) differs from number of types ({1})".format(self.column_count, len(types)))
             return -1
 
         sql = "CREATE TABLE {0} (".format(tablename)
