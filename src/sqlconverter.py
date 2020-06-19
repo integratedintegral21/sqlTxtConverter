@@ -59,12 +59,12 @@ class Table():
         print("Number of columns: {0}\tNumber of records: {1}\n".format(self.column_count, self.row_count))
         print("Columns:\n%s" % self.types)
 
-    def insert_sql(self, filename, types, tablename,create_new_table = False, quiet=False):
+    def insert_sql(self, filename, tablename,create_new_table = False, quiet=False):
         if create_new_table == True:
             sql = sql = "CREATE TABLE {0} (".format(tablename)
 
             for i in range(len(self.column_values)):
-                sql = sql + self.column_values[i] + " " + types[i] + ", "
+                sql = sql + self.column_values[i] + " " + self.types[self.column_values[i]] + ", "
 
             sql = sql[:len(sql) - 2] #delete ',' at the end
             sql = sql + ");\n"
