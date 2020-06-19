@@ -10,6 +10,7 @@ class Table():
         self.import_file = ""
         self.column_count = 0
         self.row_count = 0
+        self.types = dict()
 
     def get_data_from_txt(self, filename, separator, quiet=False):
 
@@ -40,9 +41,15 @@ class Table():
             if(len(v) != self.column_count):
                 print("Warning: Number of fields in row nr {0} ({1}) is diffrent from number of columns ({2})".format(i+1, len(v), self.column_count))
         
+        for col in self.column_values:
+            print("Insert type for %s" % col)
+            inserted_type = input()
+            self.types.update({col : inserted_type})
+
+        print(self.types)
 
         if quiet == False:
-            print("Data imported successfully")
+            print("Data imported successfully from {0}".format(filename))
 
                   
     def summary(self):
@@ -50,21 +57,22 @@ class Table():
         print("<-----------------------Table summary----------------------->\n\n")
         print("Table imported from: {0}\n".format(os.path.abspath(self.import_file)))
         print("Number of columns: {0}\tNumber of records: {1}\n".format(self.column_count, self.row_count))
-                
-    def create_and_insert_sql(self, filename, types, tablename):
+        print("Columns:\n%s" % self.types)
 
-        if(len(types) != self.column_count):
-            raise Exception("Error: number of columns ({0}) differs from number of types ({1})".format(self.column_count, len(types)))
-            return -1
+    def insert_sql(self, filename, types, tablename,create_new_table = False, quiet=False):
+        if create_new_table == True:
+            sql = sql = "CREATE TABLE {0} (".format(tablename)
 
-        sql = "CREATE TABLE {0} (".format(tablename)
+            for i in range(len(self.column_values)):
+                sql = sql + self.column_values[i] + " " + types[i] + ", "
 
-        for i in range(len(self.column_values)):
-            sql = sql + self.column_values[i] + " " + types[i] + ", "
-        
-        sql = sql[:len(sql) - 2] #delete ',' at the end
-        sql = sql + ");\nINSERT INTO {0} (".format(tablename)
-        
+            sql = sql[:len(sql) - 2] #delete ',' at the end
+            sql = sql + ");\n"
+
+        else:
+            sql = ""
+
+        sql += "INSERT INTO {0} (".format(tablename)
         for col in self.column_values:
             sql = sql + col + ", "
         
@@ -86,29 +94,8 @@ class Table():
         f = open(filename, "w")
         f.write(sql)
 
-    def insert_sql(self, filename, types, tablename):
-        sql = "INSERT INTO {0} (".format(tablename)
-        for col in self.column_values:
-            sql = sql + col + ", "
-        
-        sql = sql[:len(sql) - 2]
-        sql = sql + ") VALUES "
-
-        for row in self.row_values:
-            str = "("
-
-            for val in row:
-                str = str +"\"" +val + "\"" ", "
-            
-            str = str[0:len(str) - 2]
-            str = str + "), "
-            sql = sql + str
-
-        sql = sql[:len(sql) - 2]
-        
-        f = open(filename, "w")
-        f.write(sql)
-
+        if quiet==False:
+            print("Data exported to {0}".format(filename))
 
     def __split_data__(self, str, separator): #transforms string "field1;field2,....fieldn" into list [field1, field2,....fieldn]
         arr = []
